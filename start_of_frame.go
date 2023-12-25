@@ -5,7 +5,7 @@ import (
 	"os"
 )
 
-func StartOfFrame(file *os.File) {
+func ExtractStartOfFrame(file *os.File) {
 	segmentLengthBuffer := make([]byte, 2)
 
 	_, err = ReadFunc(file, segmentLengthBuffer)
@@ -27,9 +27,13 @@ func StartOfFrame(file *os.File) {
 		panic(err)
 	}
 
-	fmt.Printf("Precision %d\n", BigEUint16(segmentDataBuffer[0], segmentDataBuffer[1]))
-	fmt.Printf("Line No %d\n", BigEUint16(segmentDataBuffer[2], segmentDataBuffer[3]))
-	fmt.Printf("Samples Per Line %d\n", int(segmentDataBuffer[4]))
+	fmt.Printf("Precision %d\n", int(segmentDataBuffer[0]))
+
+	Height = BigEUint16(segmentDataBuffer[1], segmentDataBuffer[2])
+	fmt.Printf("Line No %d\n", Height)
+
+	Width = BigEUint16(segmentDataBuffer[3], segmentDataBuffer[4])
+	fmt.Printf("Samples Per Line %d\n", Width)
 
 	numberOfComponents := int(segmentDataBuffer[5])
 	// fmt.Printf("Components %d\n", numberOfComponents)
@@ -37,6 +41,15 @@ func StartOfFrame(file *os.File) {
 	for i := 0; i < int(numberOfComponents); i++ {
 
 		index := 6 + i*3
+
+		switch i + 1 {
+		case 1:
+			C1QT = int(segmentDataBuffer[index+2])
+		case 2:
+			C2QT = int(segmentDataBuffer[index+2])
+		case 3:
+			C3QT = int(segmentDataBuffer[index+2])
+		}
 
 		fmt.Printf("Component %d %dx%d %d\n",
 			int(segmentDataBuffer[index]),

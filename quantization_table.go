@@ -5,7 +5,7 @@ import (
 	"os"
 )
 
-func QuantizationTable(file *os.File, qMap map[int][][]byte) {
+func ExtractQuantizationTable(file *os.File, qMap map[int][]byte) {
 	segmentLengthBuffer := make([]byte, 2)
 
 	_, err = ReadFunc(file, segmentLengthBuffer)
@@ -33,12 +33,21 @@ func QuantizationTable(file *os.File, qMap map[int][][]byte) {
 
 	tableData := segmentDataBuffer[1:]
 
+	array := make([]byte, 64)
+	for h := 0; h < 64; h++ {
+		array[h] = tableData[h]
+	}
+
+	qMap[int(tableType)] = array
+
+	fmt.Printf("Table Data\n")
 	for i := 0; i < 8; i++ {
-		array := make([]byte, 8)
 		for j := 0; j < 8; j++ {
-			array[j] = tableData[i*8+j]
+			fmt.Printf("%02d ", int(array[i*8+j]))
+
 		}
-		qMap[int(tableType)] = append(qMap[int(tableType)], array)
+		fmt.Printf("\n")
+
 	}
 
 	fmt.Println("")

@@ -5,7 +5,7 @@ import (
 	"os"
 )
 
-func ApplicationHeader(file *os.File) {
+func ExtractApplicationHeader(file *os.File) {
 
 	segmentLengthBuffer := make([]byte, 2)
 
