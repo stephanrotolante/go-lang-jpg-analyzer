@@ -31,12 +31,12 @@ func ReadFunc(file *os.File, buffer []byte) (int, error) {
 	return n, nil
 }
 
-func BigEUint16(arg1, arg2 byte) int {
+func BigEUint16(arg1, arg2 byte) uint16 {
 
-	return int(binary.BigEndian.Uint16([]byte{
+	return binary.BigEndian.Uint16([]byte{
 		arg1,
 		arg2,
-	}))
+	})
 }
 
 func Clamp(value int) int {
