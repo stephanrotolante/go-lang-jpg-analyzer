@@ -50,7 +50,7 @@ func ExtractEndOfImage(file *os.File) {
 
 			for component := 1; component <= NumberOfComponents; component++ {
 
-				var bits = byte(0x00)
+				var bits = uint16(0x0000)
 
 				var coeffList [64]int
 
@@ -61,18 +61,18 @@ func ExtractEndOfImage(file *os.File) {
 				}
 
 				for bitLength := 1; bitLength < 17; bitLength++ {
-					bits = (bits << 1) | GetBit()
+					bits = (bits << 1) + uint16(GetBit())
 
 					for _, MAPPED_SYM_CODE := range HuffmanTables[DC_TABLE][dcTableIndex][bitLength] {
 
 						if MAPPED_SYM_CODE[HUFF_CODE] == bits {
-							bits = 0x00
+							bits = 0x0000
 							bitLength += 17
 							var coeffLength = int(MAPPED_SYM_CODE[HUFF_SYM] & 0x0F)
 
-							var coeffByte = byte(0x00)
+							var coeffByte = uint16(0x0000)
 							for coeffCount := 0; coeffCount < coeffLength; coeffCount++ {
-								coeffByte = (coeffByte << 1) | GetBit()
+								coeffByte = (coeffByte << 1) + uint16(GetBit())
 							}
 
 							var coeff = int(coeffByte)
@@ -98,12 +98,12 @@ func ExtractEndOfImage(file *os.File) {
 
 					for bitLength := 1; bitLength < 17; bitLength++ {
 
-						bits = (bits << 1) | GetBit()
+						bits = (bits << 1) + uint16(GetBit())
 
 						for _, MAPPED_SYM_CODE := range HuffmanTables[AC_TABLE][acTableIndex][bitLength] {
 							if MAPPED_SYM_CODE[HUFF_CODE] == bits {
 								bitLength += 17
-								bits = 0x00
+								bits = 0x0000
 
 								var coeffLength = int(MAPPED_SYM_CODE[HUFF_SYM] & 0x0F)
 								var numberOfZeros = int((MAPPED_SYM_CODE[HUFF_SYM] >> 4))
@@ -114,41 +114,29 @@ func ExtractEndOfImage(file *os.File) {
 
 								if MAPPED_SYM_CODE[HUFF_SYM] == 0x00 {
 									// Whole MCU is zero
-									fmt.Printf("All Zeros %d %02x\n\tAC TABLE %d\n\n", bitLength-17, MAPPED_SYM_CODE[HUFF_SYM], acTableIndex)
 									coeffIndex = 64
 									break
 
 								}
 
 								if coeffIndex+numberOfZeros > 63 {
-									// fmt.Printf("Breakout too high\n")
 									break
 								}
 
 								if coeffLength == 0 {
-									fmt.Printf("Breakout no length\n")
-									break
-								}
-
-								if coeffLength > 10 {
-									// fmt.Printf("Breakout no length\n")
 									break
 								}
 
 								coeffIndex += numberOfZeros
 
-								var coeffByte = byte(0x00)
+								var coeffByte = uint16(0x0000)
 								for coeffCount := 0; coeffCount < coeffLength; coeffCount++ {
-									coeffByte = (coeffByte << 1) | GetBit()
-								}
-
-								if int(coeffByte) == -1 {
-									break
+									coeffByte = (coeffByte << 1) + uint16(GetBit())
 								}
 
 								var coeff = ExtractCoefficient(int(coeffByte), coeffLength)
 
-								coeffList[ZigZag[coeffIndex]] = coeff * int(Q_MAP[GetQuantTable(component)][ZigZag[coeffIndex]])
+								coeffList[ZigZag[coeffIndex]] = coeff * int(Q_MAP[GetQuantTable(component)][coeffIndex])
 								coeffIndex += 1
 								break
 							}

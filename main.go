@@ -73,18 +73,23 @@ func main() {
 		if err != nil {
 
 			if len(RawImageData) >= 3 {
-				// Odd Number
-				var condition1 = RawImageData[len(RawImageData)-3:][0] == 0xFF && RawImageData[len(RawImageData)-3:][1] == 0xD9
 
-				// Even Number
-				var condition2 = RawImageData[len(RawImageData)-3:][1] == 0xFF && RawImageData[len(RawImageData)-3:][2] == 0xD9
-				if condition1 {
+				/*
+				* End of file is reached. We ran out of bytes to read now we are handling the execption.
+				* If 0xFFD9 is not found then we ran into an issue
+				 */
+
+				// Final 3 Bytes
+				var f3B = RawImageData[len(RawImageData)-3:]
+
+				// Odd Number
+				if 0xFFD9 == uint16((uint16(f3B[0])<<8)+uint16(f3B[1])) {
 					RawImageData = RawImageData[:len(RawImageData)-3]
 					currentBytes[0] = 0xFF
 					currentBytes[1] = 0xD9
 				}
-
-				if condition2 {
+				// Even Number
+				if 0xFFD9 == uint16((uint16(f3B[1])<<8)+uint16(f3B[2])) {
 					RawImageData = RawImageData[:len(RawImageData)-2]
 					currentBytes[0] = 0xFF
 					currentBytes[1] = 0xD9
@@ -95,34 +100,34 @@ func main() {
 			}
 		}
 
-		switch BigEUint16(currentBytes[0], currentBytes[1]) {
-		// 0xFFE0 Application Header Segnment
-		case 65504:
+		switch uint16((uint16(currentBytes[0]) << 8) + uint16(currentBytes[1])) {
+		// Application Header Segnment
+		case 0xFFE0:
 			fmt.Println("APP0")
 			ExtractApplicationHeader(file)
 
-		// 0xFFDB Quantization Table Segnment
-		case 65499:
+		// Quantization Table Segnment
+		case 0xFFDB:
 			fmt.Println("QT")
 			ExtractQuantizationTable(file, Q_MAP)
 
-		// 0xFFC0 Start of Frame
-		case 65472:
+		// Start of Frame
+		case 0xFFC0:
 			fmt.Println("SOF")
 			ExtractStartOfFrame(file)
 
-		// 0xFFC4 Huffman Table
-		case 65476:
+		// Huffman Table
+		case 0xFFC4:
 			fmt.Println("HUF")
 			ExtractReadHuffmanTable(file, HuffmanTables)
 
-		// 0xFFDA Start of Scan
-		case 65498:
+		// Start of Scan
+		case 0xFFDA:
 			fmt.Println("SOC")
 			ExtractStartOfScan(file)
 
-		// 0xFFD9 End of Image
-		case 65497:
+		// End of Image
+		case 0xFFD9:
 			fmt.Println("EOI")
 
 			ExtractEndOfImage(file)

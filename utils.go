@@ -8,7 +8,7 @@ import (
 	"os"
 )
 
-type HuffmanTable = map[int][][]byte
+type HuffmanTable = map[int][][]uint16
 
 const HUFF_CODE = 0
 const HUFF_SYM = 1
@@ -124,7 +124,6 @@ func AddDCC(component, newValue int) int {
 	switch component {
 	case 1:
 		C1DCC = C1DCC + newValue
-
 		return C1DCC
 	case 2:
 		C2DCC = C2DCC + newValue

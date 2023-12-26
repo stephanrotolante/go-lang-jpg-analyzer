@@ -59,7 +59,7 @@ func ExtractReadHuffmanTable(file *os.File, huffmanTables map[int][]HuffmanTable
 
 	offset := 0
 
-	var code = 0x00
+	var code = 0x0000
 
 	NewHuffmanTable := make(HuffmanTable)
 
@@ -71,7 +71,7 @@ func ExtractReadHuffmanTable(file *os.File, huffmanTables map[int][]HuffmanTable
 		for j := 0; j < int(freq); j++ {
 
 			sym := symbolBuffer[offset+j]
-			NewHuffmanTable[i+1] = append(NewHuffmanTable[i+1], []byte{byte(code), sym})
+			NewHuffmanTable[i+1] = append(NewHuffmanTable[i+1], []uint16{uint16(code), uint16(sym)})
 			fmt.Printf("%02x ", sym)
 
 			switch i {
