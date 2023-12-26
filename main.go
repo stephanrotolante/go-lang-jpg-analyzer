@@ -83,13 +83,13 @@ func main() {
 				var f3B = RawImageData[len(RawImageData)-3:]
 
 				// Odd Number
-				if 0xFFD9 == uint16((uint16(f3B[0])<<8)+uint16(f3B[1])) {
+				if 0xFFD9 == BigEUint16(f3B[0], f3B[1]) {
 					RawImageData = RawImageData[:len(RawImageData)-3]
 					currentBytes[0] = 0xFF
 					currentBytes[1] = 0xD9
 				}
 				// Even Number
-				if 0xFFD9 == uint16((uint16(f3B[1])<<8)+uint16(f3B[2])) {
+				if 0xFFD9 == BigEUint16(f3B[1], f3B[2]) {
 					RawImageData = RawImageData[:len(RawImageData)-2]
 					currentBytes[0] = 0xFF
 					currentBytes[1] = 0xD9
@@ -100,7 +100,7 @@ func main() {
 			}
 		}
 
-		switch uint16((uint16(currentBytes[0]) << 8) + uint16(currentBytes[1])) {
+		switch BigEUint16(currentBytes[0], currentBytes[1]) {
 		// Application Header Segnment
 		case 0xFFE0:
 			fmt.Println("APP0")

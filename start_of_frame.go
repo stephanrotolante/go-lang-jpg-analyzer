@@ -29,10 +29,10 @@ func ExtractStartOfFrame(file *os.File) {
 
 	fmt.Printf("Precision %d\n", int(segmentDataBuffer[0]))
 
-	Height = BigEUint16(segmentDataBuffer[1], segmentDataBuffer[2])
+	Height = int(BigEUint16(segmentDataBuffer[1], segmentDataBuffer[2]))
 	fmt.Printf("Line No %d\n", Height)
 
-	Width = BigEUint16(segmentDataBuffer[3], segmentDataBuffer[4])
+	Width = int(BigEUint16(segmentDataBuffer[3], segmentDataBuffer[4]))
 	fmt.Printf("Samples Per Line %d\n", Width)
 
 	numberOfComponents := int(segmentDataBuffer[5])
