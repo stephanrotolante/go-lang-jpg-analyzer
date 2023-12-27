@@ -10,6 +10,8 @@ import (
 
 const ZOOM = 1
 
+var t = CreateIDCTTable()
+
 func ExtractEndOfImage(file *os.File) {
 
 	// Really stupid edgecase
@@ -81,7 +83,7 @@ func ExtractEndOfImage(file *os.File) {
 								coeff = AddDCC(component, ExtractCoefficient(coeff, coeffLength))
 							}
 
-							coeffList[ZigZag[0]] = coeff * int(Q_MAP[GetQuantTable(component)][0])
+							coeffList[0] = coeff * int(Q_MAP[GetQuantTable(component)][0])
 
 							break
 						}
@@ -108,10 +110,6 @@ func ExtractEndOfImage(file *os.File) {
 								var coeffLength = int(MAPPED_SYM_CODE[HUFF_SYM] & 0x0F)
 								var numberOfZeros = int((MAPPED_SYM_CODE[HUFF_SYM] >> 4))
 
-								if MAPPED_SYM_CODE[HUFF_SYM] == 0xF0 {
-									coeffIndex += 16
-								}
-
 								if MAPPED_SYM_CODE[HUFF_SYM] == 0x00 {
 									// Whole MCU is zero
 									coeffIndex = 64
@@ -120,10 +118,7 @@ func ExtractEndOfImage(file *os.File) {
 								}
 
 								if coeffIndex+numberOfZeros > 63 {
-									break
-								}
-
-								if coeffLength == 0 {
+									coeffIndex = 64
 									break
 								}
 
@@ -134,9 +129,12 @@ func ExtractEndOfImage(file *os.File) {
 									coeffByte = (coeffByte << 1) + uint16(GetBit())
 								}
 
-								var coeff = ExtractCoefficient(int(coeffByte), coeffLength)
+								var coeff = 0
+								if coeffLength != 0 {
+									coeff = ExtractCoefficient(int(coeffByte), coeffLength)
+								}
 
-								coeffList[ZigZag[coeffIndex]] = coeff * int(Q_MAP[GetQuantTable(component)][coeffIndex])
+								coeffList[coeffIndex] = coeff * int(Q_MAP[GetQuantTable(component)][coeffIndex])
 								coeffIndex += 1
 								break
 							}
@@ -146,15 +144,22 @@ func ExtractEndOfImage(file *os.File) {
 
 				}
 
-				var t = CreateIDCTTable()
+				var temp [64]int
+				for y := 0; y < 8; y++ {
+					for x := 0; x < 8; x++ {
+						temp[8*y+x] = coeffList[ZigZag[8*y+x]]
+					}
+				}
+
+				coeffList = temp
+
 				for y := 0; y < 8; y++ {
 					for x := 0; x < 8; x++ {
 						var sum = 0.00
 
 						for n := 0; n < 8; n++ {
 							for m := 0; m < 8; m++ {
-								sum += float64(coeffList[n*8+m]) * t[n*8+y] * t[m*8+x]
-								// InverseDCT(8, n) * InverseDCT(8, m) * FuncOfA(n) * FuncOfA(m)
+								sum += float64(coeffList[n*8+m]) * t[m*8+x] * t[n*8+y]
 							}
 						}
 
@@ -162,25 +167,24 @@ func ExtractEndOfImage(file *os.File) {
 					}
 				}
 
-			}
+				for yy := 0; yy < 8; yy++ {
+					for xx := 0; xx < 8; xx++ {
+						r, g, b := ColorConvert(finalOutput[0][8*yy+xx], finalOutput[1][8*yy+xx], finalOutput[2][8*yy+xx])
 
-			for yy := 0; yy < 8; yy++ {
-				for xx := 0; xx < 8; xx++ {
-					r, g, b := ColorConvert(finalOutput[0][8*yy+xx], finalOutput[1][8*yy+xx], finalOutput[2][8*yy+xx])
+						x1 := (x*8 + xx) * ZOOM
+						y1 := (y*8 + yy) * ZOOM
+						x2 := (x*8 + (xx + 1)) * ZOOM
+						y2 := (y*8 + (yy + 1)) * ZOOM
 
-					x1 := (x*8 + xx) * ZOOM
-					y1 := (y*8 + yy) * ZOOM
-					x2 := (x1 + 1) * ZOOM
-					y2 := (y1 + 1) * ZOOM
-
-					_, err = writer.WriteString(fmt.Sprintf("%d:%d:%d:%d:%d:%d:%d\n", x1, y1, x2, y2, r, g, b))
-					if err != nil {
-						log.Fatal(err)
+						_, err = writer.WriteString(fmt.Sprintf("%d:%d:%d:%d:%d:%d:%d\n", x1, y1, x2, y2, r, g, b))
+						if err != nil {
+							log.Fatal(err)
+						}
 					}
+
 				}
 
 			}
-
 		}
 	}
 

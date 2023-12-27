@@ -152,12 +152,8 @@ func CreateIDCTTable() []float64 {
 	var table []float64
 	for i := 0; i < 8; i++ {
 		for j := 0; j < 8; j++ {
-			var c = (float64(2.0*j+1.0) * float64(i) * math.Pi)
-			var n = 1.0
-			if j == 0 {
-				n = 1.0 / math.Sqrt(2.0)
-			}
-			table = append(table, n*math.Cos(c/16.0))
+
+			table = append(table, FuncOfA(i)*InverseDCT(j, i))
 		}
 	}
 
@@ -166,10 +162,10 @@ func CreateIDCTTable() []float64 {
 
 func FuncOfA(input int) float64 {
 	if input == 0 {
-		return 1 / math.Sqrt(8)
+		return 1.0 / math.Sqrt(2.0)
 	}
 
-	return math.Sqrt(2 / 8)
+	return 1.0
 }
 
 func InverseDCT(arg1, arg2 int) float64 {

@@ -11,7 +11,7 @@ b=6
 if __name__ == "__main__":
 
     master = Tk()
-    w = Canvas(master, width=600, height=600)
+    w = Canvas(master, width=800, height=800)
     w.pack()
 
     try:
