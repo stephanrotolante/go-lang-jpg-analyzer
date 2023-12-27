@@ -10,12 +10,15 @@ g=5
 b=6
 if __name__ == "__main__":
 
-    master = Tk()
-    w = Canvas(master, width=800, height=800)
-    w.pack()
-
     try:
         with open("color.out", 'r') as file:
+            h_w = file.readline().strip().split(":")
+
+            master = Tk()
+            master.title("Decoded JPEG")
+            w = Canvas(master, width=int(h_w[1]), height=int(h_w[0]))
+            w.pack()
+
             for line_number, line in enumerate(file, start=1):
                 parts = line.strip().split(":")
 

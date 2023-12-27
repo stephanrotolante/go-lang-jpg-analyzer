@@ -8,7 +8,7 @@ import (
 	"os"
 )
 
-const ZOOM = 2
+const ZOOM = 1
 
 var t = CreateIDCTTable()
 
@@ -44,6 +44,8 @@ func ExtractEndOfImage(file *os.File) {
 	defer file.Close()
 
 	writer := bufio.NewWriter(file)
+
+	_, err = writer.WriteString(fmt.Sprintf("%d:%d\n", Height*ZOOM, Width*ZOOM))
 
 	for y := 0; y < int(math.Floor(float64(Height/8))); y++ {
 		for x := 0; x < int(math.Floor(float64(Width/8))); x++ {
