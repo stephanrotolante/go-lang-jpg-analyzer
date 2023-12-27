@@ -8,7 +8,7 @@ import (
 	"os"
 )
 
-const ZOOM = 1
+const ZOOM = 2
 
 var t = CreateIDCTTable()
 
@@ -81,6 +81,8 @@ func ExtractEndOfImage(file *os.File) {
 
 							if coeffLength != 0 {
 								coeff = AddDCC(component, ExtractCoefficient(coeff, coeffLength))
+							} else {
+								coeff = AddDCC(component, 0)
 							}
 
 							coeffList[0] = coeff * int(Q_MAP[GetQuantTable(component)][0])
@@ -115,6 +117,12 @@ func ExtractEndOfImage(file *os.File) {
 									coeffIndex = 64
 									break
 
+								}
+
+								if MAPPED_SYM_CODE[HUFF_SYM] == 0xF0 {
+									// Whole MCU is zero
+									coeffIndex += 16
+									break
 								}
 
 								if coeffIndex+numberOfZeros > 63 {
