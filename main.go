@@ -30,14 +30,21 @@ var Q_MAP = make(map[int][]byte)
 
 var HuffmanTables = make(map[int][]HuffmanTable)
 
+var OutFile string
+
 func main() {
 
 	var filePath string
 	flag.StringVar(&filePath, "file", "", "path to jpg file")
+	flag.StringVar(&OutFile, "output", "", "output file name")
 	flag.Parse()
 
 	if fileType := path.Ext(filePath); fileType != ".jpeg" && fileType != ".jpg" {
 		panic(errors.New(fmt.Sprintf("file is not correct type %s", fileType)))
+	}
+
+	if OutFile == "" {
+		panic(errors.New("No output file specified"))
 	}
 
 	file, err := os.Open(filePath)
