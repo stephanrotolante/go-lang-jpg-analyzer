@@ -17,6 +17,10 @@ var C1AC, C2AC, C3AC int
 
 var C1QT, C2QT, C3QT int
 
+var C1XS, C2XS, C3XS int
+
+var C1YS, C2YS, C3YS int
+
 var NumberOfComponents int
 
 var Height, Width int
@@ -109,8 +113,8 @@ func main() {
 
 		switch BigEUint16(currentBytes[0], currentBytes[1]) {
 		// Application Header Segnment
-		case 0xFFE0:
-			fmt.Println("APP0")
+		case 0xFFE0, 0xFFE1, 0xFFE2, 0xFFE3, 0xFFE4, 0xFFE5, 0xFFE6, 0xFFE7, 0xFFE8, 0xFFE9, 0xFFEA, 0xFFEB, 0xFFEC, 0xFFED, 0xFFEE, 0xFFEF:
+			fmt.Printf("APP%d\n", int(currentBytes[1]&0x01))
 			ExtractApplicationHeader(file)
 
 		// Quantization Table Segnment

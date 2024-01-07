@@ -45,10 +45,16 @@ func ExtractStartOfFrame(file *os.File) {
 		switch i + 1 {
 		case 1:
 			C1QT = int(segmentDataBuffer[index+2])
+			C1XS = int((segmentDataBuffer[index+1] & 0xF0) >> 4)
+			C1YS = int(segmentDataBuffer[index+1] & 0x0F)
 		case 2:
 			C2QT = int(segmentDataBuffer[index+2])
+			C2XS = int((segmentDataBuffer[index+1] & 0xF0) >> 4)
+			C2YS = int(segmentDataBuffer[index+1] & 0x0F)
 		case 3:
 			C3QT = int(segmentDataBuffer[index+2])
+			C3XS = int((segmentDataBuffer[index+1] & 0xF0) >> 4)
+			C3YS = int(segmentDataBuffer[index+1] & 0x0F)
 		}
 
 		fmt.Printf("Component %d %dx%d %d\n",

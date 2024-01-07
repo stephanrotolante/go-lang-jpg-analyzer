@@ -6,13 +6,14 @@ args = parser.parse_args()
 
 if __name__ == "__main__":
 
+    from tkinter import mainloop
     try:
         file_path = args.file
 
         if file_path is None:
             raise Exception("No file specified")
         
-        from tkinter import Tk, Canvas, mainloop
+        from tkinter import Tk, Canvas
 
         X1=HEIGHT=0
         Y1=WIDTH=1
@@ -51,5 +52,8 @@ if __name__ == "__main__":
             mainloop()
     except FileNotFoundError:
         print(f"Error: File '{file_path}' not found.")
+    except IndexError:
+        print("Out of range")
+        mainloop()
     except Exception as e:
         print(f"Error: {e}")
