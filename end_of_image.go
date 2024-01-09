@@ -50,13 +50,11 @@ func ExtractEndOfImage(file *os.File) {
 	for y := 0; y < int(math.Floor(float64((Height+7)/8))); y += C1YS {
 		for x := 0; x < int(math.Floor(float64((Width+7)/8))); x += C1XS {
 
-			var finalOutput [3][64]int
+			var finalOutput [6][64]int
 
 			for component := 1; component <= NumberOfComponents; component++ {
 
 				var bits = uint16(0x0000)
-
-				var coeffList [64]int
 
 				dcTableIndex, err := GetDC(component)
 
@@ -102,7 +100,7 @@ func ExtractEndOfImage(file *os.File) {
 										coeff = AddDCC(component, 0)
 									}
 
-									coeffList[0] = coeff * int(Q_MAP[GetQuantTable(component)][0])
+									finalOutput[GetComponent(component-1, ys, xs)][0] = coeff * int(Q_MAP[GetQuantTable(component)][0])
 
 									break
 								}
@@ -153,7 +151,7 @@ func ExtractEndOfImage(file *os.File) {
 											coeff = ExtractCoefficient(int(coeffByte), coeffLength)
 										}
 
-										coeffList[ZigZag[coeffIndex]] = coeff * int(Q_MAP[GetQuantTable(component)][coeffIndex])
+										finalOutput[GetComponent(component-1, ys, xs)][ZigZag[coeffIndex]] = coeff * int(Q_MAP[GetQuantTable(component)][coeffIndex])
 										coeffIndex += 1
 										break
 									}
@@ -164,6 +162,14 @@ func ExtractEndOfImage(file *os.File) {
 					}
 				}
 
+			}
+
+			for c := 1; c <= 6; c++ {
+				var coeffList [64]int
+				var componentIndex = c - 1
+				for i := 0; i < 64; i++ {
+					coeffList[i] = finalOutput[componentIndex][i]
+				}
 				for y := 0; y < 8; y++ {
 					for x := 0; x < 8; x++ {
 						var sum = 0.00
@@ -174,19 +180,61 @@ func ExtractEndOfImage(file *os.File) {
 							}
 						}
 
-						finalOutput[component-1][y*8+x] = int(sum / 4)
+						finalOutput[componentIndex][y*8+x] = int(sum / 4)
 					}
 				}
 			}
 
 			for yy := 0; yy < 8; yy++ {
 				for xx := 0; xx < 8; xx++ {
-					r, g, b := ColorConvert(finalOutput[0][8*yy+xx], finalOutput[1][8*yy+xx], finalOutput[2][8*yy+xx])
+					var r, g, b, x1, x2, y1, y2 int
 
-					x1 := (x*8 + xx) * ZOOM
-					y1 := (y*8 + yy) * ZOOM
-					x2 := (x*8 + (xx + 1)) * ZOOM
-					y2 := (y*8 + (yy + 1)) * ZOOM
+					r, g, b = ColorConvert(finalOutput[0][8*yy+xx], finalOutput[1][8*yy+xx], finalOutput[2][8*yy+xx])
+
+					x1 = (x*8 + xx) * ZOOM
+					y1 = (y*8 + yy) * ZOOM
+					x2 = (x*8 + (xx + 1)) * ZOOM
+					y2 = (y*8 + (yy + 1)) * ZOOM
+
+					_, err = writer.WriteString(fmt.Sprintf("%d:%d:%d:%d:%d:%d:%d\n", x1, y1, x2, y2, r, g, b))
+					if err != nil {
+						log.Fatal(err)
+					}
+
+					if C1XS == 1 && C1YS == 1 {
+						continue
+					}
+
+					r, g, b = ColorConvert(finalOutput[3][8*yy+xx], finalOutput[1][8*yy+xx], finalOutput[2][8*yy+xx])
+
+					x1 = ((x+1)*8 + xx) * ZOOM
+					y1 = (y*8 + yy) * ZOOM
+					x2 = ((x+1)*8 + (xx + 1)) * ZOOM
+					y2 = (y*8 + (yy + 1)) * ZOOM
+
+					_, err = writer.WriteString(fmt.Sprintf("%d:%d:%d:%d:%d:%d:%d\n", x1, y1, x2, y2, r, g, b))
+					if err != nil {
+						log.Fatal(err)
+					}
+
+					r, g, b = ColorConvert(finalOutput[4][8*yy+xx], finalOutput[1][8*yy+xx], finalOutput[2][8*yy+xx])
+
+					x1 = (x*8 + xx) * ZOOM
+					y1 = ((y+1)*8 + yy) * ZOOM
+					x2 = (x*8 + (xx + 1)) * ZOOM
+					y2 = ((y+1)*8 + (yy + 1)) * ZOOM
+
+					_, err = writer.WriteString(fmt.Sprintf("%d:%d:%d:%d:%d:%d:%d\n", x1, y1, x2, y2, r, g, b))
+					if err != nil {
+						log.Fatal(err)
+					}
+
+					r, g, b = ColorConvert(finalOutput[5][8*yy+xx], finalOutput[1][8*yy+xx], finalOutput[2][8*yy+xx])
+
+					x1 = ((x+1)*8 + xx) * ZOOM
+					y1 = ((y+1)*8 + yy) * ZOOM
+					x2 = ((x+1)*8 + (xx + 1)) * ZOOM
+					y2 = ((y+1)*8 + (yy + 1)) * ZOOM
 
 					_, err = writer.WriteString(fmt.Sprintf("%d:%d:%d:%d:%d:%d:%d\n", x1, y1, x2, y2, r, g, b))
 					if err != nil {

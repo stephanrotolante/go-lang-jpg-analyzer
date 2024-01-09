@@ -52,6 +52,26 @@ func Clamp(value int) int {
 
 }
 
+// I hate this lol
+func GetComponent(c, s1, s2 int) int {
+
+	if c == 0 {
+		if s1 == 0 && s2 == 0 {
+			return c
+		} else if s1 == 0 && s2 == 1 {
+			return 3
+		} else if s1 == 1 && s2 == 0 {
+			return 4
+		} else if s1 == 1 && s2 == 1 {
+			return 5
+		}
+
+		return 3
+	}
+
+	return c
+}
+
 func ColorConvert(Y, Cb, Cr int) (int, int, int) {
 
 	R := int(float64(Y)+(float64(Cr)*1.402)) + 128
