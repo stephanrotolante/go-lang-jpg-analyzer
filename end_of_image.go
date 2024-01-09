@@ -8,7 +8,7 @@ import (
 	"os"
 )
 
-const ZOOM = 1
+const ZOOM = .25
 
 var t = CreateIDCTTable()
 
@@ -45,7 +45,7 @@ func ExtractEndOfImage(file *os.File) {
 
 	writer := bufio.NewWriter(file)
 
-	_, err = writer.WriteString(fmt.Sprintf("%d:%d\n", Height*ZOOM, Width*ZOOM))
+	_, err = writer.WriteString(fmt.Sprintf("%d:%d\n", int(float64(Height)*ZOOM), int(float64(Width)*ZOOM)))
 
 	for y := 0; y < int(math.Floor(float64((Height+7)/8))); y += C1YS {
 		for x := 0; x < int(math.Floor(float64((Width+7)/8))); x += C1XS {
@@ -191,10 +191,10 @@ func ExtractEndOfImage(file *os.File) {
 
 					r, g, b = ColorConvert(finalOutput[0][8*yy+xx], finalOutput[1][8*yy+xx], finalOutput[2][8*yy+xx])
 
-					x1 = (x*8 + xx) * ZOOM
-					y1 = (y*8 + yy) * ZOOM
-					x2 = (x*8 + (xx + 1)) * ZOOM
-					y2 = (y*8 + (yy + 1)) * ZOOM
+					x1 = int(float64(x*8+xx) * ZOOM)
+					y1 = int(float64(y*8+yy) * ZOOM)
+					x2 = int(float64(x*8+(xx+1)) * ZOOM)
+					y2 = int(float64(y*8+(yy+1)) * ZOOM)
 
 					_, err = writer.WriteString(fmt.Sprintf("%d:%d:%d:%d:%d:%d:%d\n", x1, y1, x2, y2, r, g, b))
 					if err != nil {
@@ -207,10 +207,10 @@ func ExtractEndOfImage(file *os.File) {
 
 					r, g, b = ColorConvert(finalOutput[3][8*yy+xx], finalOutput[1][8*yy+xx], finalOutput[2][8*yy+xx])
 
-					x1 = ((x+1)*8 + xx) * ZOOM
-					y1 = (y*8 + yy) * ZOOM
-					x2 = ((x+1)*8 + (xx + 1)) * ZOOM
-					y2 = (y*8 + (yy + 1)) * ZOOM
+					x1 = int(float64((x+1)*8+xx) * ZOOM)
+					y1 = int(float64(y*8+yy) * ZOOM)
+					x2 = int(float64((x+1)*8+(xx+1)) * ZOOM)
+					y2 = int(float64(y*8+(yy+1)) * ZOOM)
 
 					_, err = writer.WriteString(fmt.Sprintf("%d:%d:%d:%d:%d:%d:%d\n", x1, y1, x2, y2, r, g, b))
 					if err != nil {
@@ -219,10 +219,10 @@ func ExtractEndOfImage(file *os.File) {
 
 					r, g, b = ColorConvert(finalOutput[4][8*yy+xx], finalOutput[1][8*yy+xx], finalOutput[2][8*yy+xx])
 
-					x1 = (x*8 + xx) * ZOOM
-					y1 = ((y+1)*8 + yy) * ZOOM
-					x2 = (x*8 + (xx + 1)) * ZOOM
-					y2 = ((y+1)*8 + (yy + 1)) * ZOOM
+					x1 = int(float64(x*8+xx) * ZOOM)
+					y1 = int(float64((y+1)*8+yy) * ZOOM)
+					x2 = int(float64(x*8+(xx+1)) * ZOOM)
+					y2 = int(float64((y+1)*8+(yy+1)) * ZOOM)
 
 					_, err = writer.WriteString(fmt.Sprintf("%d:%d:%d:%d:%d:%d:%d\n", x1, y1, x2, y2, r, g, b))
 					if err != nil {
@@ -231,10 +231,10 @@ func ExtractEndOfImage(file *os.File) {
 
 					r, g, b = ColorConvert(finalOutput[5][8*yy+xx], finalOutput[1][8*yy+xx], finalOutput[2][8*yy+xx])
 
-					x1 = ((x+1)*8 + xx) * ZOOM
-					y1 = ((y+1)*8 + yy) * ZOOM
-					x2 = ((x+1)*8 + (xx + 1)) * ZOOM
-					y2 = ((y+1)*8 + (yy + 1)) * ZOOM
+					x1 = int(float64((x+1)*8+xx) * ZOOM)
+					y1 = int(float64((y+1)*8+yy) * ZOOM)
+					x2 = int(float64((x+1)*8+(xx+1)) * ZOOM)
+					y2 = int(float64((y+1)*8+(yy+1)) * ZOOM)
 
 					_, err = writer.WriteString(fmt.Sprintf("%d:%d:%d:%d:%d:%d:%d\n", x1, y1, x2, y2, r, g, b))
 					if err != nil {
