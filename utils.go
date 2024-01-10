@@ -218,3 +218,13 @@ func InverseDCT(arg1, arg2 int) float64 {
 
 	return math.Cos(float64((float64(2.0*float64(arg1)+1.0) * float64(arg2) * math.Pi) / 16))
 }
+
+func IntToLittleEdian(v int) (byte, byte, byte, byte) {
+
+	return byte(v >> 0 & 0xFF), byte(v >> 8 & 0xFF), byte(v >> 16 & 0xFF), byte(v >> 24 & 0xFF)
+}
+
+func ShortToLittleEdian(v int) (byte, byte) {
+
+	return byte(v >> 0 & 0xFF), byte(v >> 8 & 0xFF)
+}

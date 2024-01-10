@@ -1,5 +1,5 @@
 run:	
-	go run *.go -file cat.jpg -output color.out | tee out.log
+	go run *.go -file cat.jpg -output color.bmp | tee out.log
 	
 dump:
 	hex-dump -f cat.jpg  | tee dump.log

@@ -8,8 +8,6 @@ import (
 	"os"
 )
 
-const ZOOM = .25
-
 var t = CreateIDCTTable()
 
 func ExtractEndOfImage(file *os.File) {
@@ -45,7 +43,55 @@ func ExtractEndOfImage(file *os.File) {
 
 	writer := bufio.NewWriter(file)
 
-	_, err = writer.WriteString(fmt.Sprintf("%d:%d\n", int(float64(Height)*ZOOM), int(float64(Width)*ZOOM)))
+	var PaddingSize = Width % 4
+	var Size = 14 + 12 + Height*Width*3 + PaddingSize*Height
+
+	writer.WriteByte(byte('B'))
+	writer.WriteByte(byte('M'))
+
+	var b1, b2, b3, b4 byte
+
+	b1, b2, b3, b4 = IntToLittleEdian(Size)
+	writer.WriteByte(b1)
+	writer.WriteByte(b2)
+	writer.WriteByte(b3)
+	writer.WriteByte(b4)
+
+	b1, b2, b3, b4 = IntToLittleEdian(0)
+	writer.WriteByte(b1)
+	writer.WriteByte(b2)
+	writer.WriteByte(b3)
+	writer.WriteByte(b4)
+
+	b1, b2, b3, b4 = IntToLittleEdian(0x1A)
+	writer.WriteByte(b1)
+	writer.WriteByte(b2)
+	writer.WriteByte(b3)
+	writer.WriteByte(b4)
+
+	b1, b2, b3, b4 = IntToLittleEdian(12)
+	writer.WriteByte(b1)
+	writer.WriteByte(b2)
+	writer.WriteByte(b3)
+	writer.WriteByte(b4)
+
+	b1, b2 = ShortToLittleEdian(Width)
+	writer.WriteByte(b1)
+	writer.WriteByte(b2)
+
+	b1, b2 = ShortToLittleEdian(Height)
+	writer.WriteByte(b1)
+	writer.WriteByte(b2)
+
+	b1, b2 = ShortToLittleEdian(1)
+	writer.WriteByte(b1)
+	writer.WriteByte(b2)
+
+	b1, b2 = ShortToLittleEdian(24)
+	writer.WriteByte(b1)
+	writer.WriteByte(b2)
+
+	var Pixels = make([][]int, Height*Width)
 
 	for y := 0; y < int(math.Floor(float64((Height+7)/8))); y += C1YS {
 		for x := 0; x < int(math.Floor(float64((Width+7)/8))); x += C1XS {
@@ -184,21 +230,14 @@ func ExtractEndOfImage(file *os.File) {
 					}
 				}
 			}
-
 			for yy := 0; yy < 8; yy++ {
 				for xx := 0; xx < 8; xx++ {
-					var r, g, b, x1, x2, y1, y2 int
+					var r, g, b int
 
 					r, g, b = ColorConvert(finalOutput[0][8*yy+xx], finalOutput[1][8*yy+xx], finalOutput[2][8*yy+xx])
 
-					x1 = int(float64(x*8+xx) * ZOOM)
-					y1 = int(float64(y*8+yy) * ZOOM)
-					x2 = int(float64(x*8+(xx+1)) * ZOOM)
-					y2 = int(float64(y*8+(yy+1)) * ZOOM)
-
-					_, err = writer.WriteString(fmt.Sprintf("%d:%d:%d:%d:%d:%d:%d\n", x1, y1, x2, y2, r, g, b))
-					if err != nil {
-						log.Fatal(err)
+					Pixels[((y*8+yy*C1YS)*Width)+(x*8+xx*C1XS)] = []int{
+						r, g, b,
 					}
 
 					if C1XS == 1 && C1YS == 1 {
@@ -207,43 +246,42 @@ func ExtractEndOfImage(file *os.File) {
 
 					r, g, b = ColorConvert(finalOutput[3][8*yy+xx], finalOutput[1][8*yy+xx], finalOutput[2][8*yy+xx])
 
-					x1 = int(float64((x+1)*8+xx) * ZOOM)
-					y1 = int(float64(y*8+yy) * ZOOM)
-					x2 = int(float64((x+1)*8+(xx+1)) * ZOOM)
-					y2 = int(float64(y*8+(yy+1)) * ZOOM)
-
-					_, err = writer.WriteString(fmt.Sprintf("%d:%d:%d:%d:%d:%d:%d\n", x1, y1, x2, y2, r, g, b))
-					if err != nil {
-						log.Fatal(err)
+					Pixels[((y*8+yy*C1YS)*Width)+(x*8+xx*C1XS)+1] = []int{
+						r, g, b,
 					}
 
 					r, g, b = ColorConvert(finalOutput[4][8*yy+xx], finalOutput[1][8*yy+xx], finalOutput[2][8*yy+xx])
 
-					x1 = int(float64(x*8+xx) * ZOOM)
-					y1 = int(float64((y+1)*8+yy) * ZOOM)
-					x2 = int(float64(x*8+(xx+1)) * ZOOM)
-					y2 = int(float64((y+1)*8+(yy+1)) * ZOOM)
-
-					_, err = writer.WriteString(fmt.Sprintf("%d:%d:%d:%d:%d:%d:%d\n", x1, y1, x2, y2, r, g, b))
-					if err != nil {
-						log.Fatal(err)
+					Pixels[(((y*8+yy*C1YS)+1)*Width)+(x*8+xx*C1XS)] = []int{
+						r, g, b,
 					}
 
 					r, g, b = ColorConvert(finalOutput[5][8*yy+xx], finalOutput[1][8*yy+xx], finalOutput[2][8*yy+xx])
 
-					x1 = int(float64((x+1)*8+xx) * ZOOM)
-					y1 = int(float64((y+1)*8+yy) * ZOOM)
-					x2 = int(float64((x+1)*8+(xx+1)) * ZOOM)
-					y2 = int(float64((y+1)*8+(yy+1)) * ZOOM)
-
-					_, err = writer.WriteString(fmt.Sprintf("%d:%d:%d:%d:%d:%d:%d\n", x1, y1, x2, y2, r, g, b))
-					if err != nil {
-						log.Fatal(err)
+					Pixels[(((y*8+yy*C1YS)+1)*Width)+(x*8+xx*C1XS)+1] = []int{
+						r, g, b,
 					}
+
 				}
 
 			}
 
+		}
+	}
+
+	for h := Height - 1; h >= 0; h-- {
+
+		for w := 0; w < Width; w++ {
+
+			if len(Pixels[h*Width+w]) == 3 {
+				writer.WriteByte(byte(Pixels[h*Width+w][2]))
+				writer.WriteByte(byte(Pixels[h*Width+w][1]))
+				writer.WriteByte(byte(Pixels[h*Width+w][0]))
+
+				for i := 0; i < PaddingSize; i++ {
+					writer.WriteByte(0x00)
+				}
+			}
 		}
 	}
 
