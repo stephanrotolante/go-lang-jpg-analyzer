@@ -265,7 +265,7 @@ func ExtractEndOfImage(file *os.File) {
 					r, g, b = ColorConvert(finalOutput[5][8*yy+xx], finalOutput[1][8*yy+xx], finalOutput[2][8*yy+xx])
 
 					yOffset = ((y+1)*8 + yy) * Width
-					xOffset = (x+1)*8 + xx*1
+					xOffset = (x+1)*8 + xx
 					Pixels[yOffset+xOffset] = []int{
 						r, g, b,
 					}
