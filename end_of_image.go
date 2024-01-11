@@ -232,11 +232,13 @@ func ExtractEndOfImage(file *os.File) {
 			}
 			for yy := 0; yy < 8; yy++ {
 				for xx := 0; xx < 8; xx++ {
-					var r, g, b int
+					var r, g, b, yOffset, xOffset int
 
 					r, g, b = ColorConvert(finalOutput[0][8*yy+xx], finalOutput[1][8*yy+xx], finalOutput[2][8*yy+xx])
 
-					Pixels[((y*8+yy*C1YS)*Width)+(x*8+xx*C1XS)] = []int{
+					yOffset = (y*8 + yy) * Width
+					xOffset = x*8 + xx
+					Pixels[yOffset+xOffset] = []int{
 						r, g, b,
 					}
 
@@ -246,19 +248,25 @@ func ExtractEndOfImage(file *os.File) {
 
 					r, g, b = ColorConvert(finalOutput[3][8*yy+xx], finalOutput[1][8*yy+xx], finalOutput[2][8*yy+xx])
 
-					Pixels[((y*8+yy*C1YS)*Width)+(x*8+xx*C1XS)+1] = []int{
+					yOffset = (y*8 + yy) * Width
+					xOffset = (x+1)*8 + xx
+					Pixels[yOffset+xOffset] = []int{
 						r, g, b,
 					}
 
 					r, g, b = ColorConvert(finalOutput[4][8*yy+xx], finalOutput[1][8*yy+xx], finalOutput[2][8*yy+xx])
 
-					Pixels[(((y*8+yy*C1YS)+1)*Width)+(x*8+xx*C1XS)] = []int{
+					yOffset = ((y+1)*8 + yy) * Width
+					xOffset = x*8 + xx
+					Pixels[yOffset+xOffset] = []int{
 						r, g, b,
 					}
 
 					r, g, b = ColorConvert(finalOutput[5][8*yy+xx], finalOutput[1][8*yy+xx], finalOutput[2][8*yy+xx])
 
-					Pixels[(((y*8+yy*C1YS)+1)*Width)+(x*8+xx*C1XS)+1] = []int{
+					yOffset = ((y+1)*8 + yy) * Width
+					xOffset = (x+1)*8 + xx*1
+					Pixels[yOffset+xOffset] = []int{
 						r, g, b,
 					}
 
