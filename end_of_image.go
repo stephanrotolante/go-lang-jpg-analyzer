@@ -91,7 +91,11 @@ func ExtractEndOfImage(file *os.File) {
 	writer.WriteByte(b1)
 	writer.WriteByte(b2)
 
-	var Pixels = make([][]int, Height*Width)
+	var Pixels = make([][][]int, Height+15)
+
+	for j := 0; j < len(Pixels); j++ {
+		Pixels[j] = make([][]int, Width+15)
+	}
 
 	for y := 0; y < int(math.Floor(float64((Height+7)/8))); y += C1YS {
 		for x := 0; x < int(math.Floor(float64((Width+7)/8))); x += C1XS {
@@ -236,9 +240,9 @@ func ExtractEndOfImage(file *os.File) {
 
 					r, g, b = ColorConvert(finalOutput[0][8*yy+xx], finalOutput[1][8*yy+xx], finalOutput[2][8*yy+xx])
 
-					yOffset = (y*8 + yy) * Width
-					xOffset = x*8 + xx
-					Pixels[yOffset+xOffset] = []int{
+					yOffset = (y * 8) + yy
+					xOffset = (x*8 + xx)
+					Pixels[yOffset][xOffset] = []int{
 						r, g, b,
 					}
 
@@ -248,25 +252,25 @@ func ExtractEndOfImage(file *os.File) {
 
 					r, g, b = ColorConvert(finalOutput[3][8*yy+xx], finalOutput[1][8*yy+xx], finalOutput[2][8*yy+xx])
 
-					yOffset = (y*8 + yy) * Width
-					xOffset = (x+1)*8 + xx
-					Pixels[yOffset+xOffset] = []int{
+					yOffset = (y * 8) + yy
+					xOffset = ((x+1)*8 + xx)
+					Pixels[yOffset][xOffset] = []int{
 						r, g, b,
 					}
 
 					r, g, b = ColorConvert(finalOutput[4][8*yy+xx], finalOutput[1][8*yy+xx], finalOutput[2][8*yy+xx])
 
-					yOffset = ((y+1)*8 + yy) * Width
-					xOffset = x*8 + xx
-					Pixels[yOffset+xOffset] = []int{
+					yOffset = ((y + 1) * 8) + yy
+					xOffset = (x*8 + xx)
+					Pixels[yOffset][xOffset] = []int{
 						r, g, b,
 					}
 
 					r, g, b = ColorConvert(finalOutput[5][8*yy+xx], finalOutput[1][8*yy+xx], finalOutput[2][8*yy+xx])
 
-					yOffset = ((y+1)*8 + yy) * Width
-					xOffset = (x+1)*8 + xx
-					Pixels[yOffset+xOffset] = []int{
+					yOffset = ((y + 1) * 8) + yy
+					xOffset = ((x+1)*8 + xx)
+					Pixels[yOffset][xOffset] = []int{
 						r, g, b,
 					}
 
@@ -281,15 +285,14 @@ func ExtractEndOfImage(file *os.File) {
 
 		for w := 0; w < Width; w++ {
 
-			if len(Pixels[h*Width+w]) == 3 {
-				writer.WriteByte(byte(Pixels[h*Width+w][2]))
-				writer.WriteByte(byte(Pixels[h*Width+w][1]))
-				writer.WriteByte(byte(Pixels[h*Width+w][0]))
-
-				for i := 0; i < PaddingSize; i++ {
-					writer.WriteByte(0x00)
-				}
+			if len(Pixels[h][w]) == 3 {
+				writer.WriteByte(byte(Pixels[h][w][2]))
+				writer.WriteByte(byte(Pixels[h][w][1]))
+				writer.WriteByte(byte(Pixels[h][w][0]))
 			}
+		}
+		for i := 0; i < PaddingSize; i++ {
+			writer.WriteByte(0x00)
 		}
 	}
 
