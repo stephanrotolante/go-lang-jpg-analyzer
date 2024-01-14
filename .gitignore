@@ -1,3 +1,3 @@
-color.out
-out.log
-dump.log
+*.out
+*.log
+*.bmp

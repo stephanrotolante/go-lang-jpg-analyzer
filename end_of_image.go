@@ -289,6 +289,10 @@ func ExtractEndOfImage(file *os.File) {
 				writer.WriteByte(byte(Pixels[h][w][2]))
 				writer.WriteByte(byte(Pixels[h][w][1]))
 				writer.WriteByte(byte(Pixels[h][w][0]))
+			} else {
+				writer.WriteByte(0x00)
+				writer.WriteByte(0x00)
+				writer.WriteByte(0x00)
 			}
 		}
 		for i := 0; i < PaddingSize; i++ {

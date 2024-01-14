@@ -7,8 +7,5 @@ dump:
 build:
 	go build -o image-analyze.bin *.go
 
-display:
-	python3 display.py -f color.out
-
 test:
 	make run && make display
